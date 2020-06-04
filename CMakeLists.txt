@@ -8,10 +8,16 @@ find_package(catkin REQUIRED COMPONENTS
     image_transport
     camera_info_manager
     sensor_msgs
+    dynamic_reconfigure
 )
+
 find_package(gazebo REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
+
+generate_dynamic_reconfigure_options(
+  cfg/RealsenseGazeboPlugin.cfg
+)
 
 catkin_package(
     DEPENDS

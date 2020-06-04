@@ -12,6 +12,9 @@
 #include <camera_info_manager/camera_info_manager.h>
 #include <image_transport/image_transport.h>
 
+#include <dynamic_reconfigure/server.h>
+#include <realsense_gazebo_plugin/RealsenseGazeboPluginConfig.h>
+
 #include <memory>
 #include <string>
 
@@ -22,28 +25,23 @@ class GazeboRosRealsense : public RealSensePlugin {
 public:
   GazeboRosRealsense();
 
-  /// \brief Destructor.
-public:
+  /// \brief Destructor.:
   ~GazeboRosRealsense();
 
   // Documentation Inherited.
-public:
   virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
 
   /// \brief Callback that publishes a received Depth Camera Frame as an
   /// ImageStamped message.
-public:
   virtual void OnNewDepthFrame();
-
-  /// \brief Helper function to fill the pointcloud information
-  bool FillPointCloudHelper(sensor_msgs::PointCloud2 &point_cloud_msg, uint32_t rows_arg,
-                            uint32_t cols_arg, uint32_t step_arg, void *data_arg);
-
+  
   /// \brief Callback that publishes a received Camera Frame as an
   /// ImageStamped message.
-public:
   virtual void OnNewFrame(const rendering::CameraPtr cam,
                           const transport::PublisherPtr pub);
+
+  // Callback for dynamic reconfigure update
+  void dynamic_reconfigure_cb(realsense_gazebo_plugin::RealsenseGazeboPluginConfig &config, uint32_t level);
 
 protected:
   boost::shared_ptr<camera_info_manager::CameraInfoManager>
@@ -53,6 +51,10 @@ protected:
   ///  A node will be instantiated if it does not exist.
 protected:
   ros::NodeHandle *rosnode_;
+
+  // Dynamic reconfigure server
+  dynamic_reconfigure::Server<realsense_gazebo_plugin::RealsenseGazeboPluginConfig>* dr_server;
+
 
 private:
   image_transport::ImageTransport *itnode_;

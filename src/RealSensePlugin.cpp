@@ -43,12 +43,6 @@ RealSensePlugin::~RealSensePlugin() {}
 
 /////////////////////////////////////////////////
 void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
-  // Output the name of the model
-  std::cout
-      << std::endl
-      << "RealSensePlugin: The realsense_camera plugin is attach to model "
-      << _model->GetName() << std::endl;
-
   _sdf = _sdf->GetFirstElement();
 
   cameraParamsMap_.insert(std::make_pair(COLOR_CAMERA_NAME, CameraParams()));
@@ -210,6 +204,37 @@ void RealSensePlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   // Listen to the update event
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&RealSensePlugin::OnUpdate, this));
+}
+
+/////////////////////////////////////////////////
+std::string RealSensePlugin::GetCameraName(){ return this->prefix; }
+
+/////////////////////////////////////////////////
+void RealSensePlugin::SetCameraNoise(double noise)
+{ 
+  // I don't think there is any way of setting noise via gazebo api so just use sdf to reload the noise model
+  // std::string data_string = "<noise>\n<type>gaussian</type>\n<mean>0.0</mean>\n<stddev>" + std::to_string(noise); + "</stddev>\n</noise>";
+  // sdf::SDF data = sdf::SDF::SDF();
+  // data.SetFromString(data_string);
+  sensors::SensorManager *smanager = sensors::SensorManager::Instance();
+  sensors::CameraSensorPtr infra1 = std::dynamic_pointer_cast<sensors::CameraSensor>(smanager->GetSensor(prefix + DEPTH_CAMERA_NAME));
+  sensors::DepthCameraSensorPtr depth = std::dynamic_pointer_cast<sensors::DepthCameraSensor>(smanager->GetSensor(prefix + IRED1_CAMERA_NAME));
+
+  // TODO: Set noise. Currently gazebo9 is literally missing the setter, gazebo11 has it.
+  // std::dynamic_pointer_cast<sensors::GaussianNoiseModel>(infra1->Noise(sensors::SensorNoiseType::CAMERA_NOISE))->SetStdDev(noise);
+  // depth->Noise(sensors::SensorNoiseType::CAMERA_NOISE)->SetStdDev(noise);
+  // this->ired2Cam->Noise(sensors::SensorNoiseType::CAMERA_NOISE)->Load(data.Root());
+  // this->colorCam->Noise(sensors::SensorNoiseType::CAMERA_NOISE)->Load(data.Root());
+}
+
+void RealSensePlugin::SetCameraUpdateRate(double rate)
+{ 
+  // Only change infra1 and depth for now
+  sensors::SensorManager *smanager = sensors::SensorManager::Instance();
+  std::dynamic_pointer_cast<sensors::DepthCameraSensor>(smanager->GetSensor(prefix + DEPTH_CAMERA_NAME))->SetUpdateRate(rate);
+  std::dynamic_pointer_cast<sensors::CameraSensor>(smanager->GetSensor(prefix + IRED1_CAMERA_NAME))->SetUpdateRate(rate);
+  // std::dynamic_pointer_cast<sensors::CameraSensor>(smanager->GetSensor(prefix + IRED2_CAMERA_NAME))->SetUpdateRate(rate);
+  // std::dynamic_pointer_cast<sensors::CameraSensor>(smanager->GetSensor(prefix + COLOR_CAMERA_NAME))->SetUpdateRate(rate);
 }
 
 /////////////////////////////////////////////////

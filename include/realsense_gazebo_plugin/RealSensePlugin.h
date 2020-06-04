@@ -67,6 +67,16 @@ public:
   virtual void OnNewFrame(const rendering::CameraPtr cam,
                           const transport::PublisherPtr pub);
 
+  // Returns camera name
+  std::string GetCameraName();
+
+  // Set noise on all image sensors
+  void SetCameraNoise(double noise);
+
+  // Set update rate on all image sensors
+  void SetCameraUpdateRate(double rate);
+
+
 protected:
   /// \brief Pointer to the model containing the plugin.
   physics::ModelPtr rsModel;
