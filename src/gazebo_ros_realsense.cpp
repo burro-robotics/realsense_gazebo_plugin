@@ -77,7 +77,11 @@ void GazeboRosRealsense::dynamic_reconfigure_cb(realsense_gazebo_plugin::Realsen
 
 void GazeboRosRealsense::OnNewFrame(const rendering::CameraPtr cam,
                                     const transport::PublisherPtr pub) {
-  common::Time current_time = this->world->SimTime();
+  #if (GAZEBO_MAJOR_VERSION >= 8)
+    common::Time current_time = this->world->SimTime();
+  #else
+    common::Time current_time = this->world->GetSimTime();
+  #endif
 
   // identify camera
   std::string camera_id = extractCameraName(cam->Name());
@@ -120,8 +124,12 @@ void GazeboRosRealsense::OnNewFrame(const rendering::CameraPtr cam,
 }
 
 void GazeboRosRealsense::OnNewDepthFrame() {
-  // get current time
-  common::Time current_time = this->world->SimTime();
+  // get current time  
+  #if (GAZEBO_MAJOR_VERSION >= 8)
+    common::Time current_time = this->world->SimTime();
+  #else
+    common::Time current_time = this->world->GetSimTime();
+  #endif
 
   RealSensePlugin::OnNewDepthFrame();
 
